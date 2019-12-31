@@ -26,15 +26,6 @@ const API_HOST = "http://localhost:8000";
 //   return data.result;
 // }
 
-async function getPosts() {
-  const response = await fetch(`${API_HOST}/posts/`, {
-    method: "GET",
-    credentials: "include"
-  });
-  const data = await response.json();
-  return data.results;
-}
-
 async function fetchHelper(pageNum) {
   const response = await fetch(`${API_HOST}/posts/?page=${pageNum}`);
   const data = await response.json()
