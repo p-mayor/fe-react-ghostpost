@@ -10,7 +10,9 @@ class Post extends Component {
         <form action={`${API_HOST}/posts/`} method="post">
             {/* body
             is_boast */}
-            <input type='text' id='body'></input>
+            <input type='text' name='body'></input>
+            <br/>
+            This is a boast<input type='checkbox' name='is_boast'></input>
           <br />
           <input type="submit" value="Submit" />
         </form>

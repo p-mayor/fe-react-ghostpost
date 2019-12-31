@@ -35,6 +35,28 @@ async function getPosts() {
   return data.results;
 }
 
+async function fetchHelper(pageNum) {
+  const response = await fetch(`${API_HOST}/posts/?page=${pageNum}`);
+  const data = await response.json()
+  return data;
+}
+
+async function fetchPostData() {
+  let pageNum = 1;
+  let done = false;
+  let currentResBody = await fetchHelper(pageNum);
+  const finalResBody = currentResBody;
+  while (!done) {
+    pageNum += 1;
+    currentResBody = await fetchHelper(pageNum);
+    finalResBody.results = finalResBody.results.concat(currentResBody.results);
+    if (currentResBody.next === null || currentResBody.next === undefined) {
+      done = true;
+    }
+  }
+  return finalResBody.results
+}
+
 class Homepage extends Component {
   constructor(props) {
     super(props);
@@ -61,8 +83,8 @@ class Homepage extends Component {
 
   async componentDidMount() {
     this.setState({
-      posts: await getPosts(),
-      displayPosts: await getPosts()
+      posts: await fetchPostData(),
+      displayPosts: await fetchPostData()
     });
   }
 
@@ -73,7 +95,8 @@ class Homepage extends Component {
         {this.state.displayPosts.length !== 0 &&
           this.state.displayPosts.map(post => (
             <div key={post.id}>
-              {post.body} <br/>{post.time} likes: {post.likes}{" "}
+              {post.body} <br />
+              {post.time} likes: {post.likes}{" "}
               <form
                 name="upvote"
                 method="post"
@@ -90,7 +113,7 @@ class Homepage extends Component {
               </form>
             </div>
           ))}
-          <hr/>
+        <hr />
         <button onClick={this.boastsOnly}>Boasts Only</button>
         <button onClick={this.roastsOnly}>Roasts Only</button>
         <button
@@ -102,10 +125,15 @@ class Homepage extends Component {
         >
           All posts
         </button>
-        <button onClick={() =>
+        <button
+          onClick={() =>
             this.setState(state => ({
-              displayPosts: state.displayPosts.sort((a,b)=>b.likes-a.likes)
-            }))}>Sort by Likes</button>
+              displayPosts: state.displayPosts.sort((a, b) => b.likes - a.likes)
+            }))
+          }
+        >
+          Sort by Likes
+        </button>
       </div>
     );
   }
